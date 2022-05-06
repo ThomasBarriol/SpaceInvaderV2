@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.*
 import java.util.*
 
-open class Invader(context: Context, x : Float, y : Float, private val screenX: Int, screenY: Int, private val bitmap: Bitmap) {
+open class Invader(context: Context, x : Float, y : Float, private val screenX: Int, screenY: Int, private val bitmap: Bitmap): draw {
     open var width: Float = screenX/ 10f
     open var height: Float = screenY / 20f
 
@@ -15,12 +15,6 @@ open class Invader(context: Context, x : Float, y : Float, private val screenX: 
     open val type = 1
     open var speedx = 200f
     open var speedy = 2f
-
-    var paint: Paint = Paint()
-
-    fun draw(canvas: Canvas){
-        canvas.drawBitmap(bitmap, position.left, position.top, paint)
-    }
 
     open fun updateMove(fps : Double, vague : Int){
         position.offset((vague) * speedx * fps.toFloat(), speedy)
@@ -36,7 +30,7 @@ open class Invader(context: Context, x : Float, y : Float, private val screenX: 
 
     fun takeShot(vague: Int): Boolean{
         val random = Random()
-        var randomNumber: Int = random.nextInt(300/vague)
+        var randomNumber: Int = random.nextInt(200/vague)
         return randomNumber == 0
     }
 }

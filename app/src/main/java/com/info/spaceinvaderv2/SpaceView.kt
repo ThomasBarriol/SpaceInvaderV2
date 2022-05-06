@@ -29,6 +29,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var backgroundPaint: Paint = Paint()
     private var bitmapInvader: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader1)
     private var bitmapMiniBoss: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader_miniboss)
+    private var bitmapPlayer: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.joueur)
     private val activity = context as FragmentActivity
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
@@ -45,7 +46,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     // Initialisation des bullets du joueur
     private var playerBullets = ArrayList<Bullet>()
-    private var timeBetweenShots = 0.8f
+    private var timeBetweenShots = 0.9f
     private var timeElapsed: Double = 0.0
 
     // Initialisation des bullets ennemies
@@ -60,6 +61,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         backgroundPaint.color = Color.BLACK
         bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, w/10, h/15, false)
         bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, w/5,h/10, false)
+        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, w/ 12, h/20, false)
     }
 
     override fun run(){
@@ -87,7 +89,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             paint.color = Color.WHITE
 
             // Dessine le joueur
-            canvas.drawBitmap(player.bitmap, player.position.left, player.position.top, paint)
+            player.draw(canvas, bitmapPlayer, player.position, paint)
 
             // Dessine les bullets du joueur si elles sont actives
             for (bullet in playerBullets){
@@ -106,7 +108,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             // Dessine les invaders
             for (invader in invaders){
                 if (invader.isVisible)
-                    invader.draw(canvas)
+                    invader.draw(canvas, bitmapInvader, invader.position, paint)
             }
 
             // On dessine le texte

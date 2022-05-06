@@ -3,11 +3,7 @@ package com.info.spaceinvaderv2
 import android.content.Context
 import android.graphics.*
 
-class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int) {
-    // Création du Bitmap qui représente le joueur
-    var bitmap: Bitmap = BitmapFactory.decodeResource(context.resources,
-        R.drawable.joueur
-    )
+class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int): draw {
 
     val width = screenX / 12f
     private val height = screenY / 20f
@@ -16,10 +12,6 @@ class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int) {
     var moving = 0
 
     private val speed = 500f
-
-    init {
-        bitmap = Bitmap.createScaledBitmap(bitmap, width.toInt(), height.toInt(), false)
-    }
 
     fun update(fps: Double){
         if (moving == 1){
