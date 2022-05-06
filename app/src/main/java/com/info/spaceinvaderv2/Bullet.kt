@@ -2,11 +2,11 @@ package com.info.spaceinvaderv2
 
 import android.graphics.*
 
-class Bullet(private val screenY: Int, x : Float, y: Float, private val direction : Int, private val speed : Float = 1f, heightModifier: Float = 30f) {
+class Bullet(private val screenY: Int, x : Float, y: Float, private val direction : Int, private val speed : Float = 800f, heightModifier: Float = 30f) {
 
     private var paint: Paint = Paint()
 
-    private val width = 2
+    private val width = 5
     private val height = screenY / heightModifier
     val position = RectF(x - width/2, y , x + width/2, y + height)
 

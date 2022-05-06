@@ -15,7 +15,7 @@ class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int) {
 
     var moving = 0
 
-    private val speed = 1f
+    private val speed = 500f
 
     init {
         bitmap = Bitmap.createScaledBitmap(bitmap, width.toInt(), height.toInt(), false)
@@ -34,5 +34,10 @@ class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int) {
         else if (position.right > screenX){
             position.offset(-10f, 0f)
         }
+    }
+
+    fun IsHit(bullet: Bullet):Boolean{
+        bullet.isActive = false
+        return bullet.position.intersect(position)
     }
 }
