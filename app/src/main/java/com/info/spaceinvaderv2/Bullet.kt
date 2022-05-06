@@ -6,7 +6,7 @@ class Bullet(private val screenY: Int, x : Float, y: Float, private val directio
 
     private var paint: Paint = Paint()
 
-    private val width = 5
+    private val width = 10
     private val height = screenY / heightModifier
     val position = RectF(x - width/2, y , x + width/2, y + height)
 

@@ -5,8 +5,8 @@ import android.graphics.*
 
 class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int): draw {
 
-    val width = screenX / 12f
-    private val height = screenY / 20f
+    val width = screenX / 6f
+    private val height = screenY / 10f
     val position = RectF(screenX /2f - width/2f, screenY - height, screenX /2f + width/2f, screenY.toFloat())
 
     var moving = 0

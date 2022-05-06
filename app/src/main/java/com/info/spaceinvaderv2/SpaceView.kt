@@ -42,7 +42,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     // Initialisation des invaders
     private var invaders = ArrayList<Invader>()
-    private var numInvaders = 4
+    private val numInvadersInit = 4
+    private var numInvaders = numInvadersInit
 
     // Initialisation des bullets du joueur
     private var playerBullets = ArrayList<Bullet>()
@@ -61,7 +62,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         backgroundPaint.color = Color.BLACK
         bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, w/10, h/15, false)
         bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, w/5,h/10, false)
-        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, w/ 12, h/20, false)
+        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, (w/ 12)*2, (h/20)*2, false)
     }
 
     override fun run(){
@@ -113,7 +114,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
             // On dessine le texte
             paint.textSize = 70f
-            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague", 20f, 75f, paint)
+            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague Num : $numInvaders", 20f, 75f, paint)
 
             // On dessine tous sur le canvas et on le débloque
             holder.unlockCanvasAndPost(canvas)
@@ -252,7 +253,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         invaders.clear()
         vies ++
         vague ++
-        numInvaders ++
+        numInvaders = numInvadersInit + vague
         initialisationNiveau(vague)
         playing = true
     }
