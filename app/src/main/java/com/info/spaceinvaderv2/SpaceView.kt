@@ -34,8 +34,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private val random = Random()
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
-    private var playing = true
-    private var paused = false
+    var playing = true
+    var paused = false
     private var gameover = false
 
     // Initialisation du joueur
@@ -63,7 +63,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     var invadersBullets= ArrayList<Bullet>()
 
     // Initialisation des variables générales spécifiques à notre jeu
-    private var score = 0
+    var score = 0
     private var vies = 3
     private var vague = 1
 
@@ -72,10 +72,10 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, widthInvader, heightInvader, false)
         bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, widthMiniBoss,heightMiniBoss, false)
         bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, widthPlayer, heightPlayer, false)
+        initialisationNiveau(vague)
     }
 
     override fun run(){
-        initialisationNiveau(vague)
         var previousFrameTime = System.currentTimeMillis()
         while (playing) {
             val currentTime = System.currentTimeMillis()
@@ -127,8 +127,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             }
 
             // On dessine le texte
-            paint.textSize = 70f
-            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague Num : $numInvaders", 20f, 75f, paint)
+            paint.textSize = 60f
+            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague Invaders : $numInvaders", 20f, 75f, paint)
 
             // On dessine tous sur le canvas et on le débloque
             holder.unlockCanvasAndPost(canvas)
@@ -228,7 +228,9 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         }
         else if (vague % 2 == 0){
             for (i in 1..numInvaders){
-                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/2).random().toFloat(), w, h, widthInvader, heightInvader))
+                var moving = random.nextInt(1)
+                moving = if (moving == 0) -1 else moving
+                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/3).random().toFloat(), w, h, widthInvader, heightInvader, moving))
             }
             var moving = random.nextInt(1)
             moving = if (moving == 0) -1 else moving
@@ -237,7 +239,9 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         }
         else {
             for (i in 1..numInvaders){
-                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/2).random().toFloat(), w, h, widthMiniBoss, heightMiniBoss))
+                var moving = random.nextInt(1)
+                moving = if (moving == 0) -1 else moving
+                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/3).random().toFloat(), w, h, widthMiniBoss, heightMiniBoss, moving))
             }
         }
     }
@@ -308,6 +312,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     fun resume(){
         playing = true
+        thread = Thread(this)
         thread.start()
     }
 }

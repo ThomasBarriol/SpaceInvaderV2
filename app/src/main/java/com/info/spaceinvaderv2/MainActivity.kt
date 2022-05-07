@@ -2,10 +2,12 @@ package com.info.spaceinvaderv2
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
+import android.view.View
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(){
 
-    private var SpaceView : SpaceView? = null
+    lateinit var SpaceView : SpaceView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,11 +17,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        SpaceView?.pause()
+        SpaceView.pause()
     }
 
     override fun onResume() {
         super.onResume()
-        SpaceView?.resume()
+        SpaceView.resume()
+    }
+
+    fun onClick(v: View){
+        if (SpaceView.playing) SpaceView.pause()
+        else SpaceView.resume()
     }
 }
