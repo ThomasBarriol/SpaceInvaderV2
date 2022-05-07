@@ -15,6 +15,7 @@ import java.lang.Thread.sleep
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
+import kotlin.system.exitProcess
 
 class SpaceView @JvmOverloads constructor(context: Context, attributes: AttributeSet? = null, defStyleAttr : Int = 0): SurfaceView(context, attributes, defStyleAttr), Runnable {
     // Initialisation d'un point qui sera composer de la largeur de l'écran en x, et la hauteur en y
@@ -68,7 +69,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     // Initialisation des variables générales spécifiques à notre jeu
     var score = 0
-    private var vies = 3
+    private var viesinit = 1
+    private var vies = viesinit
     private var vague = 1
 
     init {
@@ -164,14 +166,21 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         for (invader in invaders) {
             if (invader.isVisible) {
                 invader.updateMove(fps, vague)
-                if (invader.takeShot()) invadersBullets.add(
-                    Bullet(
-                        size.y,
-                        invader.position.left + invader.width / 2,
-                        invader.position.bottom,
-                        1
-                    )
-                )
+                if (invader.takeShot(vague)) {
+                    when (invader.type){
+                        1 -> invadersBullets.add(
+                            Bullet(size.y, invader.position.centerX(), invader.position.bottom, 1)
+                        )
+                        5 -> {
+                            val directionality =  invader.shoot(player.position, invader.position)
+                            invadersBullets.add(BulletMiniBoss(size.y,
+                                invader.position.centerX(),
+                                invader.position.bottom,
+                                1,700f,30f,directionality))
+                        }
+                    }
+
+                }
             }
         }
         // Toutes les secondes, le joueur tire
@@ -241,6 +250,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     }
 
     fun initialisationNiveau(vague: Int){
+
         if (vague % 2 == 0){
             for (i in 1..numInvaders){
                 var moving = random.nextInt(1)
@@ -271,8 +281,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
                         " ${vague}"
                 )
                 builder.setPositiveButton(R.string.reset_game,
-                    DialogInterface.OnClickListener { _, _->newGame()}
-                )
+                    DialogInterface.OnClickListener { _, _->newGame()})
+                builder.setNegativeButton("menu", DialogInterface.OnClickListener { _, _-> exitProcess(-1) })
                 return builder.create()
             }
         }
@@ -296,7 +306,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     fun newGame(){
         vague = 1
         score = 0
-        vies = 3
+        vies = viesinit
         timeElapsedShoot = 0.0
         timeElapsedImmune = 0.0
         numInvaders = numInvadersInit

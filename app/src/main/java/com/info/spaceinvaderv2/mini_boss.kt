@@ -1,7 +1,7 @@
 package com.info.spaceinvaderv2
 
-import android.content.Context
 import android.graphics.*
+import kotlin.math.atan
 
 class Miniboss(x : Float, y : Float, private val screenX: Int, screenY: Int, startmoving : Int, w : Int, h : Int): Invader(x, y, screenX, screenY, w, h, startmoving), draw {
 
@@ -23,6 +23,12 @@ class Miniboss(x : Float, y : Float, private val screenX: Int, screenY: Int, sta
             moving *= -1
             position.offset( -20f, 0f)
         }
+    }
+
+    override fun shoot(player : RectF, bulletMiniBoss: RectF): Float{
+        var dx = player.centerX() - bulletMiniBoss.centerX()
+        var dy = player.centerY() - bulletMiniBoss.centerY()
+        return (atan(dx/dy))
     }
 
 }

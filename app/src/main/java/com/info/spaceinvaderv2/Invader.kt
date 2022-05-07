@@ -3,6 +3,7 @@ package com.info.spaceinvaderv2
 import android.content.Context
 import android.graphics.*
 import java.util.*
+import kotlin.math.atan
 
 open class Invader(x : Float, y : Float, private val screenX: Int, private val screenY: Int, private val w: Int, private val h: Int, InitMoving : Int): draw {
     open var width = w
@@ -30,9 +31,14 @@ open class Invader(x : Float, y : Float, private val screenX: Int, private val s
         }
     }
 
-    fun takeShot(): Boolean{
+    fun takeShot(vague: Int): Boolean{
+        val multiplier: Int = if (vague <= 5) vague else 5
         val random = Random()
-        val randomNumber: Int = random.nextInt(200)
+        val randomNumber: Int = random.nextInt(150/multiplier)
         return (randomNumber == 0 && position.top >= 0)
+    }
+
+    open fun shoot(player : RectF, bulletMiniBoss: RectF): Float{
+        return 0f
     }
 }
