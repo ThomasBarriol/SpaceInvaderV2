@@ -34,6 +34,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private val activity = context as FragmentActivity
     private val random = Random()
     private var newVagueMess : Boolean = true
+    private var timeElapsedMess : Double = 0.0
+    private val timeMess : Double = 5.0
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
     var playing = true
@@ -84,6 +86,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             var elapsedTimeMS:Double=(currentTime-previousFrameTime).toDouble()
             timeElapsedShoot += elapsedTimeMS / 1000.0
             timeElapsedImmune += elapsedTimeMS /1000.0
+            timeElapsedMess += elapsedTimeMS / 1000.0
             if (!paused){
                 update(elapsedTimeMS/1000.0)
             }
@@ -123,7 +126,10 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
                 if (invader.isVisible)
                     when (invader.type){
                         1 -> invader.draw(canvas, bitmapInvader, invader.position, paint)
-                        5 -> invader.draw(canvas, bitmapMiniBoss, invader.position, paint)
+                        5 -> {invader.draw(canvas, bitmapMiniBoss, invader.position, paint)
+                        paint.textAlign = Paint.Align.CENTER
+                        paint.textSize = 60f
+                        canvas.drawText("${invader.life}", invader.position.left + widthMiniBoss/2, invader.position.top - 50f, paint)}
                     }
 
             }
@@ -131,14 +137,14 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             // On dessine le texte
             paint.textSize = 60f
             paint.textAlign = Paint.Align.LEFT
-            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague Invaders : $numInvaders", 20f, 75f, paint)
+            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague  Invaders : $numInvaders", 20f, 75f, paint)
 
             if (newVagueMess){
                 paint.textAlign = Paint.Align.CENTER
                 paint.textSize = 200f
                 canvas.drawText("Vague $vague", w/2f, h/4f, paint)
-                if (timeElapsedImmune >= timeImmune){
-                    timeElapsedImmune = 0.0
+                if (timeElapsedMess >= timeMess){
+                    timeElapsedMess = 0.0
                     newVagueMess = false
                 }
             }
@@ -218,13 +224,14 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when(event?.action){
-            MotionEvent.ACTION_MOVE -> if (playing){
-                if (event.x < player.position.left - player.width){
+            MotionEvent.ACTION_MOVE -> if (playing && player.position.left >= 0 && player.position.right <= w.toFloat()){
+                if (event.x < player.position.left + player.width){
                     player.moving = 1
                 }
-                else if (event.x > player.position.right + player.width){
+                else if (event.x > player.position.right - player.width){
                     player.moving = 2
                 }
+                else player.moving = 0
             }
             MotionEvent.ACTION_UP -> if (playing){
                 player.moving = 0
@@ -238,11 +245,11 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             for (i in 1..numInvaders){
                 var moving = random.nextInt(1)
                 moving = if (moving == 0) -1 else moving
-                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/3).random().toFloat(), w, h, widthInvader, heightInvader, moving))
+                invaders.add(Invader((0..w).random().toFloat(),(0..h/4).random().toFloat(), w, h, widthInvader, heightInvader, moving))
             }
             var moving = random.nextInt(1)
             moving = if (moving == 0) -1 else moving
-            invaders.add(Miniboss(w/2f, -500f, w, h, moving, widthMiniBoss, heightMiniBoss ))
+            invaders.add(Miniboss(w/2f, h/4f, w, h, moving, widthMiniBoss, heightMiniBoss ))
             numInvaders ++
 
         }
@@ -250,7 +257,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             for (i in 1..numInvaders){
                 var moving = random.nextInt(1)
                 moving = if (moving == 0) -1 else moving
-                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/3).random().toFloat(), w, h, widthMiniBoss, heightMiniBoss, moving))
+                invaders.add(Invader((0..w).random().toFloat(),(0..h/4).random().toFloat(), w, h, widthMiniBoss, heightMiniBoss, moving))
             }
         }
     }

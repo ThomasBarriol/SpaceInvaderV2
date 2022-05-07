@@ -9,7 +9,20 @@ class Miniboss(x : Float, y : Float, private val screenX: Int, screenY: Int, sta
     override var life: Int = 10
     override var height = h
     override val type: Int = 5
+    override var speedx: Float = 200f
 
     override var position = RectF(x - width/2, y - height/2, x + width/2, y + height/2)
+
+    override fun updateMove(fps: Double, vague: Int) {
+        position.offset(speedx * moving * fps.toFloat(), 0f)
+        if (position.left <= 0){
+            moving *= -1
+            position.offset( 20f, 0f)
+        }
+        else if (position.right >= screenX){
+            moving *= -1
+            position.offset( -20f, 0f)
+        }
+    }
 
 }

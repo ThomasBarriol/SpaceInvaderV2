@@ -14,10 +14,10 @@ class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int): 
     private val speed = 500f
 
     fun update(fps: Double){
-        if (moving == 1){
+        if (moving == 1 && position.left >= 0){
             position.offset(-speed * fps.toFloat(), 0f)
         }
-        else if(moving == 2){
+        else if(moving == 2 && position.left <= screenX){
             position.offset(speed * fps.toFloat(), 0f)
         }
         if (position.left < 0){
@@ -26,10 +26,5 @@ class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int): 
         else if (position.right > screenX){
             position.offset(-10f, 0f)
         }
-    }
-
-    fun IsHit(bullet: Bullet):Boolean{
-        bullet.isActive = false
-        return bullet.position.intersect(position)
     }
 }
