@@ -32,7 +32,7 @@ open class Invader(x : Float, y : Float, private val screenX: Int, private val s
     }
 
     fun takeShot(vague: Int): Boolean{
-        val multiplier: Int = if (vague <= 5) vague else 5
+        val multiplier: Int = if (vague <= 3) vague else 3
         val random = Random()
         val randomNumber: Int = random.nextInt(150/multiplier)
         return (randomNumber == 0 && position.top >= 0)

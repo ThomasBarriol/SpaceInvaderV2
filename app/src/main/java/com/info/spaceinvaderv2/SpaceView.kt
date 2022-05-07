@@ -45,7 +45,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     // Initialisation du joueur
     private var player: ShipJoueur = ShipJoueur(context, size.x, size.y)
-    private val timeImmune : Double = 3.0
+    private val timeImmune : Double = 1.0
     private var timeElapsedImmune: Double = 0.0
     var widthPlayer : Int = w/6
     var heightPlayer : Int = h/10
