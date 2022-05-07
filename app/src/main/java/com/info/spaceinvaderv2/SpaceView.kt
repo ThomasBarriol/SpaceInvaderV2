@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.SurfaceView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import java.lang.Thread.sleep
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
@@ -32,6 +33,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var bitmapPlayer: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.joueur)
     private val activity = context as FragmentActivity
     private val random = Random()
+    private var newVagueMess : Boolean = true
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
     var playing = true
@@ -128,8 +130,18 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
             // On dessine le texte
             paint.textSize = 60f
+            paint.textAlign = Paint.Align.LEFT
             canvas.drawText("Score : $score     Vies : $vies    Vague : $vague Invaders : $numInvaders", 20f, 75f, paint)
 
+            if (newVagueMess){
+                paint.textAlign = Paint.Align.CENTER
+                paint.textSize = 200f
+                canvas.drawText("Vague $vague", w/2f, h/4f, paint)
+                if (timeElapsedImmune >= timeImmune){
+                    timeElapsedImmune = 0.0
+                    newVagueMess = false
+                }
+            }
             // On dessine tous sur le canvas et on le débloque
             holder.unlockCanvasAndPost(canvas)
         }
@@ -222,11 +234,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     }
 
     fun initialisationNiveau(vague: Int){
-
-        if (vague % 5 == 0){
-            // Big_boss apparait
-        }
-        else if (vague % 2 == 0){
+        if (vague % 2 == 0){
             for (i in 1..numInvaders){
                 var moving = random.nextInt(1)
                 moving = if (moving == 0) -1 else moving
@@ -236,6 +244,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             moving = if (moving == 0) -1 else moving
             invaders.add(Mini_boss(w/2f, -500f, w, h, moving, widthMiniBoss, heightMiniBoss ))
             numInvaders ++
+
         }
         else {
             for (i in 1..numInvaders){
@@ -295,13 +304,16 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     }
 
     fun NewVague(){
+        timeElapsedImmune = 0.0
         playerBullets.clear()
         invadersBullets.clear()
         invaders.clear()
         vies ++
         vague ++
+        timeBetweenShots -= 0.05f
         numInvaders = if (vague <= 10) numInvadersInit + vague - 1 else 11
         initialisationNiveau(vague)
+        newVagueMess = true
         playing = true
     }
 

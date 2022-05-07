@@ -32,6 +32,6 @@ open class Invader(x : Float, y : Float, private val screenX: Int, private val s
     fun takeShot(): Boolean{
         val random = Random()
         var randomNumber: Int = random.nextInt(200)
-        return randomNumber == 0
+        return (randomNumber == 0 && position.top >= 0)
     }
 }
