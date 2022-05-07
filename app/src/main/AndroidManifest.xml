@@ -11,6 +11,9 @@
         android:theme="@style/Theme.SpaceInvaderV2">
         <activity
             android:name=".MainActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".MainActivityMenu"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

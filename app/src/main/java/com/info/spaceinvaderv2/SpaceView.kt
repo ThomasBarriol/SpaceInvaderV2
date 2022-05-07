@@ -242,7 +242,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             }
             var moving = random.nextInt(1)
             moving = if (moving == 0) -1 else moving
-            invaders.add(Mini_boss(w/2f, -500f, w, h, moving, widthMiniBoss, heightMiniBoss ))
+            invaders.add(Miniboss(w/2f, -500f, w, h, moving, widthMiniBoss, heightMiniBoss ))
             numInvaders ++
 
         }
