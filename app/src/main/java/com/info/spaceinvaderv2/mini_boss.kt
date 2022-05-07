@@ -8,7 +8,7 @@ class Miniboss(x : Float, y : Float, private val screenX: Int, screenY: Int, sta
     override var width = w
     override var life: Int = 10
     override var height = h
-    override val type: Int = 5
+    override var type: Int = 5
     override var speedx: Float = 200f
 
     override var position = RectF(x - width/2, y - height/2, x + width/2, y + height/2)

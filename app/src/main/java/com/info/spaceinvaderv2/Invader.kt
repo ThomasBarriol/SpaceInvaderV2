@@ -8,18 +8,21 @@ import kotlin.math.atan
 open class Invader(x : Float, y : Float, private val screenX: Int, private val screenY: Int, private val w: Int, private val h: Int, InitMoving : Int): draw {
     open var width = w
     open var height = h
+    val random : Random = Random()
 
     open var position = RectF(x - width/2, y - height/2, x + width/2, y + height/2)
 
     var isVisible = true
     var moving = InitMoving
     open var life: Int = 1
-    open val type: Int = 1
+    open var type: Int = 1
     open var speedx: Float = (100..300).random().toFloat()
     private var speedy: Float = 2f
 
     open fun updateMove(fps : Double, vague : Int){
         val multiplier = if (vague <= 4) vague else 4
+        var changeDirectionality: Boolean = random.nextInt(200/multiplier) == 0
+        moving = if(changeDirectionality) moving*-1 else moving
         position.offset((multiplier) * speedx * moving * fps.toFloat(), speedy)
         if (position.left <= 0){
             moving *= -1

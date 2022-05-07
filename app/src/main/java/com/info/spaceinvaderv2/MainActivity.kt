@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity(){
     }
 
     fun onClick(v: View){
-        if (SpaceView.playing) SpaceView.pause()
-        else SpaceView.resume()
+        SpaceView.pause()
     }
 }
