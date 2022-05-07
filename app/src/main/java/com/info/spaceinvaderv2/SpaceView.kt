@@ -18,9 +18,9 @@ import kotlin.math.roundToInt
 class SpaceView @JvmOverloads constructor(context: Context, attributes: AttributeSet? = null, defStyleAttr : Int = 0): SurfaceView(context, attributes, defStyleAttr), Runnable {
     // Initialisation d'un point qui sera composer de la largeur de l'écran en x, et la hauteur en y
     val displayMetrics = DisplayMetrics()
-    var w = context.resources.displayMetrics.widthPixels
-    var h = context.resources.displayMetrics.heightPixels
-    var size: Point = Point(w, h)
+    private var w = context.resources.displayMetrics.widthPixels
+    private var h = context.resources.displayMetrics.heightPixels
+    private var size: Point = Point(w, h)
 
     // Initialisation des composants principaux qui permettent la gestion graphique du jeu
     private var thread = Thread(this)
@@ -31,6 +31,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var bitmapMiniBoss: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader_miniboss)
     private var bitmapPlayer: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.joueur)
     private val activity = context as FragmentActivity
+    private val random = Random()
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
     private var playing = true
@@ -39,16 +40,24 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     // Initialisation du joueur
     private var player: ShipJoueur = ShipJoueur(context, size.x, size.y)
+    private val timeImmune : Double = 3.0
+    private var timeElapsedImmune: Double = 0.0
+    var widthPlayer : Int = w/6
+    var heightPlayer : Int = h/10
 
     // Initialisation des invaders
     private var invaders = ArrayList<Invader>()
-    private val numInvadersInit = 4
+    private val numInvadersInit = 2
     private var numInvaders = numInvadersInit
+    var widthInvader : Int = w/8
+    var heightInvader : Int = h/15
+    var widthMiniBoss: Int = w/5
+    var heightMiniBoss: Int = h/10
 
     // Initialisation des bullets du joueur
     private var playerBullets = ArrayList<Bullet>()
     private var timeBetweenShots = 0.9f
-    private var timeElapsed: Double = 0.0
+    private var timeElapsedShoot: Double = 0.0
 
     // Initialisation des bullets ennemies
     var invadersBullets= ArrayList<Bullet>()
@@ -60,9 +69,9 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     init {
         backgroundPaint.color = Color.BLACK
-        bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, w/10, h/15, false)
-        bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, w/5,h/10, false)
-        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, w/ 6, h/10, false)
+        bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, widthInvader, heightInvader, false)
+        bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, widthMiniBoss,heightMiniBoss, false)
+        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, widthPlayer, heightPlayer, false)
     }
 
     override fun run(){
@@ -71,7 +80,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         while (playing) {
             val currentTime = System.currentTimeMillis()
             var elapsedTimeMS:Double=(currentTime-previousFrameTime).toDouble()
-            timeElapsed += elapsedTimeMS / 1000.0
+            timeElapsedShoot += elapsedTimeMS / 1000.0
+            timeElapsedImmune += elapsedTimeMS /1000.0
             if (!paused){
                 update(elapsedTimeMS/1000.0)
             }
@@ -109,7 +119,11 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             // Dessine les invaders
             for (invader in invaders){
                 if (invader.isVisible)
-                    invader.draw(canvas, bitmapInvader, invader.position, paint)
+                    when (invader.type){
+                        1 -> invader.draw(canvas, bitmapInvader, invader.position, paint)
+                        5 -> invader.draw(canvas, bitmapMiniBoss, invader.position, paint)
+                    }
+
             }
 
             // On dessine le texte
@@ -124,13 +138,15 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private fun update(fps: Double) {
         // Update tous les composants du jeu
 
-        //upodate les déplacements du joueur
+        // update les déplacements du joueur
         player.update(fps)
 
+        // update les invaders, tire si ils en ont la chance et on vérifie si un invader a atteint le bas de la page,
+        //  si oui, le joueur a perdu
         for (invader in invaders) {
             if (invader.isVisible) {
                 invader.updateMove(fps, vague)
-                if (invader.takeShot(vague)) invadersBullets.add(
+                if (invader.takeShot()) invadersBullets.add(
                     Bullet(
                         size.y,
                         invader.position.left + invader.width / 2,
@@ -141,38 +157,43 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             }
         }
         // Toutes les secondes, le joueur tire
-        if (timeElapsed >= timeBetweenShots){
+        if (timeElapsedShoot >= timeBetweenShots){
             playerBullets.add(Bullet(size.y, player.position.left + player.width/2, player.position.top, -1))
-            timeElapsed = 0.0
+            timeElapsedShoot = 0.0
         }
 
-        // update des bullets du joueur
+        // Update les bullets du joueur et détecte si elles touchent un invader,
+        // si oui, enlève une vie à l'invader, augmente le score
         for (bullet in playerBullets){
             if (bullet.isActive){
                 bullet.update(fps)
                 for (invader in invaders){
                     if (invader.isVisible && bullet.position.intersect(invader.position)){
-                        numInvaders --
-                        score += 10*invader.type
+                        invader.life --
                         bullet.isActive = false
-                        invader.isVisible = false
+                        score += 10*invader.type
+                        if (invader.life == 0){
+                            numInvaders --
+                            invader.isVisible = false
+                        }
                     }
-
                 }
             }
         }
 
+        // On vérifie si les invaders ont touché le joueur, si oui alors il perd une vie et est immunisé
         for (bullet in invadersBullets){
             if (bullet.isActive){
                 bullet.update(fps)
-                if (bullet.position.intersect(player.position)){
+                if (bullet.position.intersect(player.position) && timeElapsedImmune >= timeImmune){
                     vies --
                     bullet.isActive = false
+                    timeElapsedImmune = 0.0
                 }
             }
         }
 
-        // on verifie sur le joueur a tué tous les invaders de la vague
+        // on verifie sur le joueur a tué tous les invaders de la vague ou si il a plus de vie
         if (numInvaders == 0) {
             playing = false
             NewVague()
@@ -201,10 +222,24 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     }
 
     fun initialisationNiveau(vague: Int){
-        invaders.add(Invader(context, w/4.toFloat(), 200f , size.x, size.y,bitmapInvader))
-        invaders.add(Invader(context, 3*w/4.toFloat(), 200f , size.x, size.y, bitmapInvader))
-        invaders.add(Invader(context, w/4.toFloat(), size.y/2.toFloat() - 200f, size.x, size.y, bitmapInvader))
-        invaders.add(Invader(context, 3*w/4.toFloat(), size.y/2.toFloat() - 200f, size.x, size.y, bitmapInvader))
+
+        if (vague % 5 == 0){
+            // Big_boss apparait
+        }
+        else if (vague % 2 == 0){
+            for (i in 1..numInvaders){
+                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/2).random().toFloat(), w, h, widthInvader, heightInvader))
+            }
+            var moving = random.nextInt(1)
+            moving = if (moving == 0) -1 else moving
+            invaders.add(Mini_boss(w/2f, -500f, w, h, moving, widthMiniBoss, heightMiniBoss ))
+            numInvaders ++
+        }
+        else {
+            for (i in 1..numInvaders){
+                invaders.add(Invader((0..w).random().toFloat(),(-h/2..h/2).random().toFloat(), w, h, widthMiniBoss, heightMiniBoss))
+            }
+        }
     }
 
     fun showGameOverDialog(messageId: Int) {
@@ -242,7 +277,8 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         vague = 1
         score = 0
         vies = 3
-        timeElapsed = 0.0
+        timeElapsedShoot = 0.0
+        timeElapsedImmune = 0.0
         numInvaders = numInvadersInit
         playerBullets.clear()
         invadersBullets.clear()
@@ -260,7 +296,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         invaders.clear()
         vies ++
         vague ++
-        numInvaders = numInvadersInit
+        numInvaders = if (vague <= 10) numInvadersInit + vague - 1 else 11
         initialisationNiveau(vague)
         playing = true
     }
