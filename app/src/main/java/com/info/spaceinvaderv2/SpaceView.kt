@@ -27,7 +27,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var canvas: Canvas = Canvas()
     private var paint: Paint = Paint()
     private var backgroundPaint: Paint = Paint()
-    private var bitmapInvader: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader1)
+    private var bitmapInvader: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader)
     private var bitmapMiniBoss: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader_miniboss)
     private var bitmapPlayer: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.joueur)
     private val activity = context as FragmentActivity
@@ -62,7 +62,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         backgroundPaint.color = Color.BLACK
         bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, w/10, h/15, false)
         bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, w/5,h/10, false)
-        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, (w/ 12)*2, (h/20)*2, false)
+        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, w/ 6, h/10, false)
     }
 
     override fun run(){
@@ -239,12 +239,19 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     }
 
     fun newGame(){
-        vague = 0
+        vague = 1
         score = 0
+        vies = 3
+        timeElapsed = 0.0
+        numInvaders = numInvadersInit
         playerBullets.clear()
         invadersBullets.clear()
+        invaders.clear()
         initialisationNiveau(vague)
         playing = true
+        paused = false
+        thread = Thread(this)
+        thread.start()
     }
 
     fun NewVague(){
@@ -253,7 +260,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         invaders.clear()
         vies ++
         vague ++
-        numInvaders = numInvadersInit + vague
+        numInvaders = numInvadersInit
         initialisationNiveau(vague)
         playing = true
     }

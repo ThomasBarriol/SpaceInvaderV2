@@ -6,7 +6,7 @@ import java.util.*
 
 open class Invader(context: Context, x : Float, y : Float, private val screenX: Int, screenY: Int, private val bitmap: Bitmap): draw {
     open var width: Float = screenX/ 10f
-    open var height: Float = screenY / 20f
+    open var height: Float = screenY / 10f
 
     open var position = RectF(x - width/2, y - height/2, x + width/2, y + height/2)
 
