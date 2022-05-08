@@ -17,20 +17,22 @@ open class Invader(x : Float, y : Float, private val screenX: Int, private val s
     open var life: Int = 1
     open var type: Int = 1
     open var speedx: Float = (100..300).random().toFloat()
-    private var speedy: Float = 2f
+    private var speedy: Float = (100..200).random().toFloat()
 
     open fun updateMove(fps : Double, vague : Int){
         val multiplier = if (vague <= 4) vague else 4
-        var changeDirectionality: Boolean = random.nextInt(200/multiplier) == 0
-        moving = if(changeDirectionality) moving*-1 else moving
-        position.offset((multiplier) * speedx * moving * fps.toFloat(), speedy)
+        var changeDirectionalityX: Boolean = random.nextInt(200/multiplier) == 0
+        var changeDirectionalityY: Boolean = random.nextInt(50/multiplier) == 0
+        moving = if(changeDirectionalityX) moving*-1 else moving
+        var movingY = if(changeDirectionalityY) moving*-1 else 1
+        position.offset((multiplier) * speedx * moving * fps.toFloat(),  movingY * speedy*fps.toFloat())
         if (position.left <= 0){
             moving *= -1
-            position.offset( 20f, speedy)
+            position.offset( 20f, speedy*fps.toFloat())
         }
         else if (position.right >= screenX){
             moving *= -1
-            position.offset( -20f, speedy)
+            position.offset( -20f, speedy*fps.toFloat())
         }
     }
 

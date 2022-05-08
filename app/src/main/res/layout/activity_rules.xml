@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="240dp"
         android:text="Le but du jeu est de détruire des vagues d'aliens
-à l'aide d'un canon laser en se déplaçant de manière horizontale."
+à l'aide d'un canon laser se déplaçant de manière horizontale."
         android:textAlignment="center"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +87,7 @@
         android:layout_height="66dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="40dp"
-        android:text="Invaders possédant plusieurs vies et tire un missile vers le joueur."
+        android:text="Invaders possédant plus de vies que les normaux et qui tire un missile vers le joueur."
         android:textColor="@color/white"
         app:layout_constraintStart_toEndOf="@+id/imageView3"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />

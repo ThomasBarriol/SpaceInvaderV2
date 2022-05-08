@@ -44,14 +44,13 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
     var playing: Boolean = true
     var paused: Boolean = false
-    private var gameover: Boolean = false
 
     // Initialisation du joueur
-    private var player: ShipJoueur = ShipJoueur(context, size.x, size.y)
     private val timeImmune : Double = 1.0
     private var timeElapsedImmune: Double = 0.0
-    private var widthPlayer : Int = w/6
-    private var heightPlayer : Int = h/10
+    private var widthPlayer : Float = w/6f
+    private var heightPlayer : Float = h/10f
+    private var player: ShipJoueur = ShipJoueur(size.x, size.y, widthPlayer, heightPlayer)
 
     // Initialisation des invaders
     private var invaders = ArrayList<Invader>()
@@ -61,7 +60,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var heightInvader : Int = h/15
     private var widthMiniBoss: Int = w/5
     private var heightMiniBoss: Int = h/10
-    private var widthBonus : Int = w/15
+    private var widthBonus : Int = w/12
     private var heightBonus : Int = h/20
 
     // Initialisation des bullets du joueur
@@ -83,7 +82,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         backgroundPaint.color = Color.BLACK
         bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, widthInvader, heightInvader, false)
         bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, widthMiniBoss,heightMiniBoss, false)
-        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, widthPlayer, heightPlayer, false)
+        bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, widthPlayer.toInt(), heightPlayer.toInt(), false)
         bitmapBonus = Bitmap.createScaledBitmap(bitmapBonus, widthBonus, heightBonus, false)
         initialisationNiveau(vague)
     }
@@ -193,73 +192,18 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
         // Toutes les secondes, le joueur tire
         if (timeElapsedShoot >= timeBetweenShots && !newVagueMess){
-            when (bonus) {
-                1 -> {
-                    playerBullets.add(
-                        Bullet(
-                            size.y,
-                            player.position.centerX(),
-                            player.position.top,
-                            -1
-                        )
-                    )
-                    timeElapsedShoot = 0.0
-                }
-                2 -> {
-                    playerBullets.add(
-                        Bullet(
-                            size.y,
-                            player.position.centerX() - 20,
-                            player.position.top,
-                            -1
-                        )
-                    )
-                    playerBullets.add(
-                        Bullet(
-                            size.y,
-                            player.position.centerX() + 20,
-                            player.position.top,
-                            -1
-                        )
-                    )
-                    timeElapsedShoot = 0.0
-                }
-                3 -> {
-                    playerBullets.add(
-                        Bullet(
-                            size.y,
-                            player.position.centerX(),
-                            player.position.top - 50,
-                            -1
-                        )
-                    )
-                    playerBullets.add(
-                        Bullet(
-                            size.y,
-                            player.position.centerX() - 20,
-                            player.position.top,
-                            -1
-                        )
-                    )
-                    playerBullets.add(
-                        Bullet(
-                            size.y,
-                            player.position.centerX() + 20,
-                            player.position.top,
-                            -1
-                        )
-                    )
-                    timeElapsedShoot = 0.0
-                }
-            }
+                player.tire(playerBullets, bonus)
+            timeElapsedShoot = 0.0
         }
+
 
         // Update les bullets du joueur et détecte si elles touchent un invader,
         // si oui, enlève une vie à l'invader, augmente le score
         for (bullet in playerBullets){
             if (bullet.isActive){
-                bullet.update(fps)
+                bullet.update(fps)  //update les bullets
                 for (invader in invaders){
+                    // Si l'invader est actif et que la bullet touche le touche
                     if (invader.isVisible && bullet.position.intersect(invader.position)){
                         //si il touche un bonus
                         if (invader.type == 2){
@@ -273,7 +217,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
                             bullet.isActive = false
                             score += 10 * invader.type
                         }
-                        // Si l'invader/bonus a été tué
+                        // Si l'invader n'a plus de vie
                         if (invader.life == 0) {
                             numInvaders--
                             invader.isVisible = false
@@ -347,7 +291,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             }
         }
         // La vague peut avoir de manière aléatoire, un bonus en plus
-        val vagueBonus: Boolean = random.nextInt(6) == 0
+        val vagueBonus: Boolean = random.nextInt(3) == 0
         if (vagueBonus){
             var moving = random.nextInt(1)
             moving = if (moving == 0) -1 else moving
