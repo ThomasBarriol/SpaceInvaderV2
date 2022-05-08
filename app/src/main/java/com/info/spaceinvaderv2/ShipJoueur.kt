@@ -11,22 +11,14 @@ class ShipJoueur(private var screenX: Int, var screenY: Int, w: Float, h: Float)
 
     val position = RectF(screenX /2f - width/2f, screenY - height, screenX /2f + width/2f, screenY.toFloat())
 
-    var moving = 0
-
-    private val speed = 500f
-
-    fun update(fps: Double){
-        if (moving == 1 && position.left >= 0){
-            position.offset(-speed * fps.toFloat(), 0f)
+    fun update(){
+        if (position.left <= 0){
+            position.left = 1f
+            position.right = position.left + width
         }
-        else if(moving == 2 && position.left <= screenX){
-            position.offset(speed * fps.toFloat(), 0f)
-        }
-        if (position.left < 0){
-            position.offset(10f, 0f)
-        }
-        else if (position.right > screenX){
-            position.offset(-10f, 0f)
+        else if (position.right >= screenX){
+            position.right = screenX - 1f
+            position.left = position.right - width
         }
     }
 

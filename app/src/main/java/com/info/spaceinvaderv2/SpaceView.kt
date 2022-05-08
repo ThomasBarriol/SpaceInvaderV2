@@ -39,7 +39,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private val random: Random = Random()
     private var newVagueMess : Boolean = true
     private var timeElapsedMess : Double = 0.0
-    private val timeMess : Double = 5.0
+    private val timeMess : Double = 3.0
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
     var playing: Boolean = true
@@ -146,7 +146,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             // On dessine le texte
             paint.textSize = 60f
             paint.textAlign = Paint.Align.LEFT
-            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague  bonus : ${bonus-1}", 20f, 75f, paint)
+            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague  bonus : ${timeElapsedMess}", 20f, 75f, paint)
 
             if (newVagueMess){
                 paint.textAlign = Paint.Align.CENTER
@@ -166,7 +166,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         // Update tous les composants du jeu
 
         // update les déplacements du joueur
-        player.update(fps)
+        player.update()
 
         // update les invaders, tire si ils en ont la chance et on vérifie si un invader a atteint le bas de la page,
         //  si oui, le joueur a perdu
@@ -192,7 +192,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
         // Toutes les secondes, le joueur tire
         if (timeElapsedShoot >= timeBetweenShots && !newVagueMess){
-                player.tire(playerBullets, bonus)
+            player.tire(playerBullets, bonus)
             timeElapsedShoot = 0.0
         }
 
@@ -251,19 +251,11 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
         when(event?.action){
-            MotionEvent.ACTION_MOVE -> if (playing && player.position.left >= 0 && player.position.right <= w.toFloat()){
-                if (event.x < player.position.left + player.width){
-                    player.moving = 1
-                }
-                else if (event.x > player.position.right - player.width){
-                    player.moving = 2
-                }
-                else player.moving = 0
-            }
-            MotionEvent.ACTION_UP -> if (playing){
-                player.moving = 0
+            MotionEvent.ACTION_MOVE -> if (event.x >= widthPlayer/2 && event.x <= w - widthPlayer/2){
+                player.position.left = event.x - widthPlayer/2
+                player.position.right = player.position.left + widthPlayer
             }
         }
         return true
@@ -351,6 +343,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     private fun newVague(){
         timeElapsedImmune = 0.0
+        timeElapsedMess = 0.0
         playerBullets.clear()
         invadersBullets.clear()
         invaders.clear()
@@ -363,7 +356,10 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         playing = true
     }
 
-    private fun showPauseMenu(messageId: Int){
+    fun showPauseMenu(messageId: Int){
+        playing = false
+        paused = true
+
         class GameResult: DialogFragment() {
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
@@ -402,5 +398,6 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         paused = false
         thread = Thread(this)
         thread.start()
+
     }
 }
