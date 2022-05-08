@@ -3,7 +3,7 @@ package com.info.spaceinvaderv2
 import android.graphics.*
 import kotlin.math.atan
 
-class Miniboss(x : Float, y : Float, private val screenX: Int, screenY: Int, startmoving : Int, w : Int, h : Int): Invader(x, y, screenX, screenY, w, h, startmoving), draw {
+class Miniboss(x : Float, y : Float, private val screenX: Int, screenY: Int, startmoving : Int, w : Int, h : Int): Invader(x, y, screenX, screenY, w, h, startmoving), drawable{
 
     override var width = w
     override var life: Int = 10

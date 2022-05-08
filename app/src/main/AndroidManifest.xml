@@ -13,6 +13,9 @@
             android:name=".MainActivity"
             android:exported="false"/>
         <activity
+            android:name=".ActivityRules"
+            android:exported="false"/>
+        <activity
             android:name=".MainActivityMenu"
             android:exported="true">
             <intent-filter>

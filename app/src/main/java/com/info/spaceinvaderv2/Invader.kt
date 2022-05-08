@@ -5,7 +5,7 @@ import android.graphics.*
 import java.util.*
 import kotlin.math.atan
 
-open class Invader(x : Float, y : Float, private val screenX: Int, private val screenY: Int, private val w: Int, private val h: Int, InitMoving : Int): draw {
+open class Invader(x : Float, y : Float, private val screenX: Int, private val screenY: Int, private val w: Int, private val h: Int, InitMoving : Int): drawable{
     open var width = w
     open var height = h
     val random : Random = Random()

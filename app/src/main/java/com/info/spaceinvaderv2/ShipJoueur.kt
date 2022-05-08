@@ -3,7 +3,7 @@ package com.info.spaceinvaderv2
 import android.content.Context
 import android.graphics.*
 
-class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int): draw {
+class ShipJoueur(context: Context, private var screenX: Int, var screenY: Int): drawable{
 
     val width = screenX / 6f
     private val height = screenY / 10f

@@ -74,7 +74,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
     // Initialisation des variables générales spécifiques à notre jeu
     private var score: Int = 0
-    private var viesinit: Int = 1
+    private var viesinit: Int = 2
     private var vies: Int = viesinit
     private var vague: Int = 1
     private var bonus : Int = 1
@@ -147,7 +147,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             // On dessine le texte
             paint.textSize = 60f
             paint.textAlign = Paint.Align.LEFT
-            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague  bonus : $bonus", 20f, 75f, paint)
+            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague  bonus : ${bonus-1}", 20f, 75f, paint)
 
             if (newVagueMess){
                 paint.textAlign = Paint.Align.CENTER
