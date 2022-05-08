@@ -44,6 +44,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
     var playing: Boolean = true
     var paused: Boolean = false
+    private var gameOver = false
 
     // Initialisation du joueur
     private val timeImmune : Double = 1.0
@@ -187,6 +188,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
                         }
                     }
                 }
+                if (invader.position.intersect(player.position)) gameOver = true
             }
         }
 
@@ -240,13 +242,15 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             }
         }
 
-        // on verifie sur le joueur a tué tous les invaders de la vague ou si il a plus de vie
+        // Nouvelle vague si le joueur a tué tous les invaders de la vague
         if (numInvaders == 0) {
             playing = false
             newVague()
         }
-        else if (vies == 0){
+        // GameOver si il a plus de vie ou si un invader l'a touché
+        else if (vies == 0 || gameOver){
             playing = false
+            gameOver = false
             showGameOverDialog(R.string.lose)
         }
     }
