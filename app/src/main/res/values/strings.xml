@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">SpaceInvaderV2</string>
-    <string name="results_format">Score : %1$d\score vague : %2$.1f</string>
+    <string name="results_format">Score : %1$d\n vague : %2$i</string>
     <string name="reset_game">Rejouer</string>
     <string name="win">Tu as gagné !</string>
     <string name="lose">Tu as perdu !</string>
     <string name="pause">Pause</string>
+    <string name="credits">Crédits :</string>
+    <string name="developpeurs">BARRIOL Thomas \nHUSSON Léopold \nSKIADAS Ioanna</string>
 </resources>
