@@ -13,11 +13,8 @@ import android.view.MotionEvent
 import android.view.SurfaceView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
-import java.lang.Thread.currentThread
-import java.lang.Thread.sleep
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
 class SpaceView @JvmOverloads constructor(context: Context, attributes: AttributeSet? = null, defStyleAttr : Int = 0): SurfaceView(context, attributes, defStyleAttr), Runnable {
@@ -118,7 +115,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             timeElapsedImmune += elapsedTimeMS /1000.0
             timeElapsedMess += elapsedTimeMS / 1000.0
             if (!paused){
-                update(elapsedTimeMS/1000.0)
+                update_game(elapsedTimeMS/1000.0)
             }
             draw()
             previousFrameTime = currentTime
@@ -185,7 +182,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         }
     }
 
-    private fun update(fps: Double) {
+    private fun update_game(fps: Double) {
         // Update tous les composants du jeu
 
         // update les déplacements du joueur
@@ -196,20 +193,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         for (invader in invaders) {
             if (invader.isVisible && !newVagueMess) {
                 invader.updateMove(fps, vague)
-                if (invader.takeShot(vague)) {
-                    when (invader.type){
-                        1 -> invadersBullets.add(
-                            Bullet(h, invader.position.centerX(), invader.position.bottom, 1)
-                        )
-                        5 -> {
-                            val directionality =  invader.shoot(player.position, invader.position)
-                            invadersBullets.add(BulletMiniBoss(h,
-                                invader.position.centerX(),
-                                invader.position.bottom,
-                                1,700f,30f,directionality))
-                        }
-                    }
-                }
+                manage_invader_shot(invader)
                 if (invader.position.intersect(player.position)) gameOver = true
             }
         }
@@ -225,32 +209,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         // Update les bullets du joueur et détecte si elles touchent un invader,
         // si oui, enlève une vie à l'invader, augmente le score
         for (bullet in playerBullets){
-            if (bullet.isActive){
-                bullet.update(fps)  //update les bullets
-                for (invader in invaders){
-                    // Si l'invader est actif et que la bullet touche le touche
-                    if (invader.isVisible && bullet.position.intersect(invader.position)){
-                        //si il touche un bonus
-                        if (invader.type == 2){
-                            invader.isVisible = false
-                            bullet.isActive = false
-                            bonus = if (bonus <= 3) bonus + 1 else 3
-                        }
-                        // Si il touche autre chose
-                        else {
-                            invader.life--
-                            bullet.isActive = false
-                            score += 10 * invader.type
-                        }
-                        // Si l'invader n'a plus de vie
-                        if (invader.life == 0) {
-                            soundPool.play(soundMap.get(0), 1f, 1f, 1, 0, 1f)
-                            numInvaders--
-                            invader.isVisible = false
-                        }
-                    }
-                }
-            }
+            check_invader_hit(bullet, fps)
         }
 
         // On vérifie si les invaders ont touché le joueur, si oui alors il perd une vie et est immunisé
@@ -276,6 +235,56 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             playing = false
             gameOver = false
             showGameOverDialog(R.string.lose)
+        }
+    }
+
+    private fun check_invader_hit(bullet: Bullet, fps: Double) {
+        if (bullet.isActive) {
+            bullet.update(fps)  //update les bullets
+            for (invader in invaders) {
+                // Si l'invader est actif et que la bullet le touche
+                if (invader.isVisible && bullet.position.intersect(invader.position)) {
+                    //si il touche un bonus
+                    if (invader.type == 2) {
+                        invader.isVisible = false
+                        bullet.isActive = false
+                        bonus = if (bonus <= 3) bonus + 1 else 3
+                    }
+                    // Si il touche autre chose
+                    else {
+                        invader.life--
+                        bullet.isActive = false
+                        score += 10 * invader.type
+                    }
+                    // Si l'invader n'a plus de vie
+                    if (invader.life == 0) {
+                        soundPool.play(soundMap.get(0), 1f, 1f, 1, 0, 1f)
+                        numInvaders--
+                        invader.isVisible = false
+                    }
+                }
+            }
+        }
+    }
+
+    private fun manage_invader_shot(invader: Invader) {
+        if (invader.takeShot(vague)) {
+            when (invader.type) {
+                1 -> invadersBullets.add(
+                    Bullet(h, invader.position.centerX(), invader.position.bottom, 1)
+                )
+                5 -> {
+                    val directionality = invader.shoot(player.position, invader.position)
+                    invadersBullets.add(
+                        BulletMiniBoss(
+                            h,
+                            invader.position.centerX(),
+                            invader.position.bottom,
+                            1, 700f, 30f, directionality
+                        )
+                    )
+                }
+            }
         }
     }
 
