@@ -101,9 +101,10 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             .setAudioAttributes(audioAttributes)
             .build()
 
-        soundMap = SparseIntArray(2)
+        soundMap = SparseIntArray(3)
         soundMap.put(0, soundPool.load(context, R.raw.destruction, 2))
         soundMap.put(1, soundPool.load(context, R.raw.pew, 1))
+        soundMap.put(2, soundPool.load(context, R.raw.hit, 3))
     }
 
     override fun run(){
@@ -214,15 +215,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
 
         // On vérifie si les invaders ont touché le joueur, si oui alors il perd une vie et est immunisé
         for (bullet in invadersBullets){
-            if (bullet.isActive){
-                bullet.update(fps)
-                if (bullet.position.intersect(player.position) && timeElapsedImmune >= timeImmune){
-                    vies --
-                    bonus = if (bonus == 1) bonus else bonus - 1
-                    bullet.isActive = false
-                    timeElapsedImmune = 0.0
-                }
-            }
+            check_player_is_hit(bullet, fps)
         }
 
         // Nouvelle vague si le joueur a tué tous les invaders de la vague
@@ -235,6 +228,19 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             playing = false
             gameOver = false
             showGameOverDialog(R.string.lose)
+        }
+    }
+
+    private fun check_player_is_hit(bullet: Bullet, fps: Double) {
+        if (bullet.isActive) {
+            bullet.update(fps)
+            if (bullet.position.intersect(player.position) && timeElapsedImmune >= timeImmune) {
+                soundPool.play(soundMap.get(2), 1f, 1f, 1, 0, 1f)
+                vies--
+                bonus = if (bonus == 1) bonus else bonus - 1
+                bullet.isActive = false
+                timeElapsedImmune = 0.0
+            }
         }
     }
 
