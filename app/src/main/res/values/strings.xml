@@ -6,5 +6,6 @@
     <string name="lose">Tu as perdu !</string>
     <string name="pause">Pause</string>
     <string name="credits">Crédits :</string>
-    <string name="developpeurs">BARRIOL Thomas \nHUSSON Léopold \nSKIADAS Ioanna</string>
+    <string name="developpeurs">Développeurs :\nBARRIOL Thomas \nHUSSON Léopold \nSKIADAS Ioanna \n
+        \nBruitage : BARRIOL Thomas</string>
 </resources>

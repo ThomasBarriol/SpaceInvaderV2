@@ -26,6 +26,6 @@ class MainActivity : AppCompatActivity(){
     }
 
     fun onClick(v: View){
-        SpaceView.pause()
+        SpaceView.showPauseMenu(R.string.pause)
     }
 }

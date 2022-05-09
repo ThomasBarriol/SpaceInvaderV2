@@ -34,6 +34,9 @@ open class Invader(x : Float, y : Float, private val screenX: Int, private val s
             moving *= -1
             position.offset( -20f, speedy*fps.toFloat())
         }
+        else if (position.bottom <= 0){
+            speedy *= -1
+        }
     }
 
     fun takeShot(vague: Int): Boolean{

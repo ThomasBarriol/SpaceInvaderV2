@@ -5,6 +5,8 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.*
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.util.*
 import android.view.MotionEvent
@@ -23,7 +25,6 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     val displayMetrics = DisplayMetrics()
     private var w = context.resources.displayMetrics.widthPixels
     private var h = context.resources.displayMetrics.heightPixels
-    private var size: Point = Point(w, h)
 
     // Initialisation des composants principaux qui permettent la gestion graphique du jeu
     private var thread = Thread(this)
@@ -34,12 +35,13 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var bitmapMiniBoss: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader_miniboss)
     private var bitmapBonus: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.invader_soucoupe)
     private var bitmapPlayer: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.joueur)
-
     private val activity = context as FragmentActivity
     private val random: Random = Random()
+
+    // Initialisation des variables qui controlent le message indiquant une nouvelle vague
     private var newVagueMess : Boolean = true
     private var timeElapsedMess : Double = 0.0
-    private val timeMess : Double = 3.0
+    private val timeMess : Double = 2.0
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
     var playing: Boolean = true
@@ -51,7 +53,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var timeElapsedImmune: Double = 0.0
     private var widthPlayer : Float = w/6f
     private var heightPlayer : Float = h/10f
-    private var player: ShipJoueur = ShipJoueur(size.x, size.y, widthPlayer, heightPlayer)
+    private var player: ShipJoueur = ShipJoueur(w, h, widthPlayer, heightPlayer)
 
     // Initialisation des invaders
     private var invaders = ArrayList<Invader>()
@@ -79,13 +81,32 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private var vague: Int = 1
     private var bonus : Int = 1
 
+    //Initialisation des paramètres pour le son
+    val soundPool: SoundPool
+    val soundMap: SparseIntArray
+
     init {
         backgroundPaint.color = Color.BLACK
+
         bitmapInvader = Bitmap.createScaledBitmap(bitmapInvader, widthInvader, heightInvader, false)
         bitmapMiniBoss = Bitmap.createScaledBitmap(bitmapMiniBoss, widthMiniBoss,heightMiniBoss, false)
         bitmapPlayer = Bitmap.createScaledBitmap(bitmapPlayer, widthPlayer.toInt(), heightPlayer.toInt(), false)
         bitmapBonus = Bitmap.createScaledBitmap(bitmapBonus, widthBonus, heightBonus, false)
         initialisationNiveau(vague)
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(1)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        soundMap = SparseIntArray(2)
+        soundMap.put(0, soundPool.load(context, R.raw.destruction, 2))
+        soundMap.put(1, soundPool.load(context, R.raw.pew, 1))
     }
 
     override fun run(){
@@ -147,8 +168,9 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             // On dessine le texte
             paint.textSize = 60f
             paint.textAlign = Paint.Align.LEFT
-            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague  bonus : ${timeElapsedMess}", 20f, 75f, paint)
+            canvas.drawText("Score : $score     Vies : $vies    Vague : $vague  bonus : ${bonus - 1}", 20f, 75f, paint)
 
+            // Si nouvelle vague, on affiche la vague en grand au milieu pour annoncer la vague n°x
             if (newVagueMess){
                 paint.textAlign = Paint.Align.CENTER
                 paint.textSize = 200f
@@ -177,11 +199,11 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
                 if (invader.takeShot(vague)) {
                     when (invader.type){
                         1 -> invadersBullets.add(
-                            Bullet(size.y, invader.position.centerX(), invader.position.bottom, 1)
+                            Bullet(h, invader.position.centerX(), invader.position.bottom, 1)
                         )
                         5 -> {
                             val directionality =  invader.shoot(player.position, invader.position)
-                            invadersBullets.add(BulletMiniBoss(size.y,
+                            invadersBullets.add(BulletMiniBoss(h,
                                 invader.position.centerX(),
                                 invader.position.bottom,
                                 1,700f,30f,directionality))
@@ -195,6 +217,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         // Toutes les secondes, le joueur tire
         if (timeElapsedShoot >= timeBetweenShots && !newVagueMess){
             player.tire(playerBullets, bonus)
+            soundPool.play(soundMap.get(1), 1f, 1f, 1, bonus - 1, 1f)
             timeElapsedShoot = 0.0
         }
 
@@ -221,6 +244,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
                         }
                         // Si l'invader n'a plus de vie
                         if (invader.life == 0) {
+                            soundPool.play(soundMap.get(0), 1f, 1f, 1, 0, 1f)
                             numInvaders--
                             invader.isVisible = false
                         }
@@ -333,6 +357,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         vies = viesinit
         timeElapsedShoot = 0.0
         timeElapsedImmune = 0.0
+        timeElapsedMess = 0.0
         bonus = 1
         numInvaders = numInvadersInit
         playerBullets.clear()
@@ -363,7 +388,6 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     fun showPauseMenu(messageId: Int){
         playing = false
         paused = true
-
         class GameResult: DialogFragment() {
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
@@ -394,7 +418,6 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     fun pause(){
         playing = false
         paused = true
-        showPauseMenu(R.string.pause)
     }
 
     fun resume(){
@@ -402,6 +425,5 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         paused = false
         thread = Thread(this)
         thread.start()
-
     }
 }
