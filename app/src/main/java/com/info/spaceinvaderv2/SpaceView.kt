@@ -20,11 +20,11 @@ import kotlin.system.exitProcess
 class SpaceView @JvmOverloads constructor(context: Context, attributes: AttributeSet? = null, defStyleAttr : Int = 0): SurfaceView(context, attributes, defStyleAttr), Runnable {
     // Initialisation d'un point qui sera composer de la largeur de l'écran en x, et la hauteur en y
     val displayMetrics = DisplayMetrics()
-    private var w = context.resources.displayMetrics.widthPixels
-    private var h = context.resources.displayMetrics.heightPixels
+    private var w: Int = context.resources.displayMetrics.widthPixels
+    private var h: Int = context.resources.displayMetrics.heightPixels
 
     // Initialisation des composants principaux qui permettent la gestion graphique du jeu
-    private var thread = Thread(this)
+    private var thread: Thread = Thread(this)
     private var canvas: Canvas = Canvas()
     private var paint: Paint = Paint()
     private var backgroundPaint: Paint = Paint()
@@ -41,9 +41,9 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     private val timeMess : Double = 2.0
 
     // Initialisation des variables booléennes qui controleront le fait de jouer ou d'être en pause
-    var playing: Boolean = true
-    var paused: Boolean = false
-    private var gameOver = false
+    var playing : Boolean = true
+    var paused : Boolean = false
+    private var gameOver : Boolean = false
 
     // Initialisation du joueur
     private val timeImmune : Double = 1.0
@@ -101,10 +101,11 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
             .setAudioAttributes(audioAttributes)
             .build()
 
-        soundMap = SparseIntArray(3)
+        soundMap = SparseIntArray(4)
         soundMap.put(0, soundPool.load(context, R.raw.destruction, 2))
         soundMap.put(1, soundPool.load(context, R.raw.pew, 1))
         soundMap.put(2, soundPool.load(context, R.raw.hit, 3))
+        soundMap.put(3, soundPool.load(context, R.raw.lose, 1))
     }
 
     override fun run(){
@@ -202,10 +203,9 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
         // Toutes les secondes, le joueur tire
         if (timeElapsedShoot >= timeBetweenShots && !newVagueMess){
             player.tire(playerBullets, bonus)
-            soundPool.play(soundMap.get(1), 1f, 1f, 1, bonus - 1, 1f)
+            soundPool.play(soundMap.get(1), 0.6f, 0.6f, 1, bonus - 1, 1f)
             timeElapsedShoot = 0.0
         }
-
 
         // Update les bullets du joueur et détecte si elles touchent un invader,
         // si oui, enlève une vie à l'invader, augmente le score
@@ -336,6 +336,7 @@ class SpaceView @JvmOverloads constructor(context: Context, attributes: Attribut
     }
 
     private fun showGameOverDialog(messageId: Int) {
+        soundPool.play(soundMap.get(3), 1f, 1f, 1, 0, 1f)
         class GameResult: DialogFragment() {
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
